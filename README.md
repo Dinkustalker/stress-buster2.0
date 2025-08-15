@@ -62,17 +62,10 @@ Screenshots
 ![Screenshot2](Add screenshot 2 link here) – Bubble Pop game in progress
 ![Screenshot3](Add screenshot 3 link here) – Face stress detection result screen
 
-Diagrams
-
-![Workflow](Add workflow diagram link here) – Shows how games and AI tools are accessed from home page, with data processed locally
 
 Project Demo
 
-Video: [Add demo video link here] – Shows launching the app, playing a game, running stress detection, and viewing results
-
-Additional Demos:
-
-[Add any extra links here]
+Video: [https://github.com/Dinkustalker/stress-buster2.0/commit/311d748bfd0d77e682244eccbc7f02f21e6adb31] – Shows launching the app, playing a game, running stress detection, and viewing results
 
 Team Contributions
 Sanjana Vijay: Frontend UI/UX design, workflow diagrams, project structure setup
