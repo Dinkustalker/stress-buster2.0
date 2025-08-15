@@ -1,4 +1,4 @@
-eam Name: sheinnovates
+Team Name: sheinnovates
 
 Team Members
 
