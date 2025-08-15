@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Voice Stress Analysis</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="falling-emojis.js"></script>
+<style>
+  #status {
+    font-size: 1.4rem;
+    font-weight: bold;
+    min-height: 50px;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+<canvas id="emojiCanvas"></canvas>
+
+<h1>🎤 Voice Stress Check 🎀</h1>
+<p>Speak into the microphone and I'll guess your stress level 💬</p>
+
+<button id="startBtn" class="main-btn">Start Voice Analysis</button>
+<p id="status">Press Start and speak...</p>
+
+<div style="margin-top: 30px; text-align: center;">
+    <button onclick="location.href='home.html'" style="background: #ffb3ba; color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem;">🏠 Back to Home</button>
+</div>
+
+<script>
+const startBtn = document.getElementById('startBtn');
+const status = document.getElementById('status');
+
+startBtn.onclick = async () => {
+  startBtn.disabled = true;
+  status.textContent = 'Initializing mic...';
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const audioCtx = new AudioContext();
+    const source = audioCtx.createMediaStreamSource(stream);
+    const analyser = audioCtx.createAnalyser();
+
+    analyser.fftSize = 2048;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    source.connect(analyser);
+
+    function getDominantFrequency() {
+      analyser.getByteFrequencyData(dataArray);
+      let maxVal = -Infinity, maxIndex = -1;
+      for (let i = 0; i < bufferLength; i++) {
+        if (dataArray[i] > maxVal) { maxVal = dataArray[i]; maxIndex = i; }
+      }
+      const nyquist = audioCtx.sampleRate / 2;
+      return (maxIndex / bufferLength) * nyquist;
+    }
+
+    function analyzeStress() {
+      const freq = getDominantFrequency();
+      let message = "Could not detect voice clearly, try speaking louder.";
+      if (freq > 75 && freq < 300) {
+        if (freq > 210) message = "You sound stressed 😰";
+        else if (freq > 150) message = "You seem a bit stressed 😐";
+        else message = "You sound relaxed 😊";
+      }
+      status.textContent = `Dominant Freq: ${freq.toFixed(1)} Hz — ${message}`;
+      requestAnimationFrame(analyzeStress);
+    }
+    analyzeStress();
+
+  } catch (err) {
+    status.textContent = 'Mic access denied/unavailable.';
+    console.error(err);
+    startBtn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

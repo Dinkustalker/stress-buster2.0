@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Photo Facial Stress Scan (Fallback)</title>
+<link rel="stylesheet" href="style.css" />
+<script defer src="error-logger.js"></script>
+<script defer src="connection-monitor.js"></script>
+<script defer src="falling-emojis.js"></script>
+
+<style>
+  body {
+    font-family: 'Baloo 2', cursive;
+    text-align: center;
+    padding: 20px;
+    background: transparent;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 100%;
+  }
+  
+  h1 {
+    color: #ff5ca2;
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+  }
+  
+  .upload-area {
+    border: 3px dashed #ff5ca2;
+    border-radius: 15px;
+    padding: 40px;
+    margin: 20px 0;
+    background: #fff0f6;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .upload-area:hover {
+    background: #ffe0f0;
+    border-color: #ff128f;
+  }
+  
+  .upload-area.dragover {
+    background: #ffb3d9;
+    border-color: #ff128f;
+  }
+  
+  #imageUpload {
+    display: none;
+  }
+  
+  #preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 10px;
+    margin: 20px 0;
+    display: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  #status {
+    font-size: 1.2rem;
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border-left: 4px solid #ff5ca2;
+  }
+  
+  .stress-result {
+    background: linear-gradient(135deg, #ff5ca2, #ff8cc8);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+    font-size: 1.3rem;
+  }
+  
+  .fallback-analysis {
+    background: #e3f2fd;
+    border: 2px solid #2196f3;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+  
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+  }
+  
+  .analysis-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #ff5ca2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn {
+    background: #ff5ca2;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 5px;
+    transition: background 0.3s;
+  }
+  
+  .btn:hover {
+    background: #ff128f;
+  }
+  
+  .btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+</style>
+</head>
+
+<body>
+<canvas id="emojiCanvas"></canvas>
+
+<div class="container">
+  <h1>📸 Photo Facial Stress Analysis</h1>
+  <p>Upload a clear photo of your face for stress level analysis</p>
+  
+  <div class="upload-area" onclick="document.getElementById('imageUpload').click()">
+    <div style="font-size: 3rem; margin-bottom: 10px;">📷</div>
+    <div>Click here or drag & drop your photo</div>
+    <div style="font-size: 0.9rem; color: #666; margin-top: 10px;">
+      Supports: JPG, PNG, GIF (Max 10MB)
+    </div>
+  </div>
+  
+  <input type="file" id="imageUpload" accept="image/*" />
+  <img id="preview" alt="Preview" />
+  
+  <div id="status">📤 Please upload a photo to begin analysis</div>
+  
+  <div id="analysisResult" style="display: none;">
+    <div class="fallback-analysis">
+      <h3>🧠 Facial Analysis Results</h3>
+      <div class="analysis-grid" id="analysisGrid">
+        <!-- Analysis results will be populated here -->
+      </div>
+    </div>
+  </div>
+  
+  <div style="margin-top: 30px;">
+    <button class="btn" onclick="location.href='home.html'">🏠 Back to Home</button>
+    <button class="btn" onclick="location.href='face-stress.html'">🔄 Try Advanced Version</button>
+    <button class="btn" onclick="location.href='diagnostics.html'">🔧 Diagnostics</button>
+  </div>
+</div>
+
+<script>
+  const imageUpload = document.getElementById('imageUpload');
+  const preview = document.getElementById('preview');
+  const status = document.getElementById('status');
+  const analysisResult = document.getElementById('analysisResult');
+  const analysisGrid = document.getElementById('analysisGrid');
+  const uploadArea = document.querySelector('.upload-area');
+
+  // Drag and drop functionality
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+  });
+
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFile(files[0]);
+    }
+  });
+
+  function handleFile(file) {
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      status.textContent = "❌ Please select a valid image file";
+      status.style.background = "#f8d7da";
+      status.style.borderLeftColor = "#dc3545";
+      return;
+    }
+    
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      status.textContent = "❌ Image too large. Please use an image smaller than 10MB";
+      status.style.background = "#f8d7da";
+      status.style.borderLeftColor = "#dc3545";
+      return;
+    }
+
+    const imgUrl = URL.createObjectURL(file);
+    preview.src = imgUrl;
+    preview.style.display = "block";
+    
+    status.textContent = "🔄 Loading image...";
+    status.style.background = "#fff3cd";
+    status.style.borderLeftColor = "#ffc107";
+    
+    // Wait for image to load before analyzing
+    preview.onload = () => {
+      analyzeImageFallback(preview, file);
+      URL.revokeObjectURL(imgUrl);
+    };
+    
+    preview.onerror = () => {
+      status.textContent = "❌ Error loading image. Please try a different file.";
+      status.style.background = "#f8d7da";
+      status.style.borderLeftColor = "#dc3545";
+      URL.revokeObjectURL(imgUrl);
+    };
+  }
+
+  function analyzeImageFallback(img, file) {
+    status.textContent = "🔍 Analyzing image properties...";
+    status.style.background = "#d1ecf1";
+    status.style.borderLeftColor = "#17a2b8";
+    
+    // Simulate analysis delay
+    setTimeout(() => {
+      // Basic image analysis without AI
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      ctx.drawImage(img, 0, 0);
+      
+      try {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const analysis = performBasicAnalysis(imageData, file);
+        displayAnalysisResults(analysis);
+      } catch (error) {
+        console.error('Analysis error:', error);
+        status.textContent = "❌ Error analyzing image. This may be due to CORS restrictions.";
+        status.style.background = "#f8d7da";
+        status.style.borderLeftColor = "#dc3545";
+        
+        // Show basic file info instead
+        displayBasicFileInfo(file);
+      }
+    }, 1500);
+  }
+
+  function performBasicAnalysis(imageData, file) {
+    const data = imageData.data;
+    let totalBrightness = 0;
+    let totalRed = 0;
+    let totalGreen = 0;
+    let totalBlue = 0;
+    
+    // Analyze color composition
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      
+      totalRed += r;
+      totalGreen += g;
+      totalBlue += b;
+      totalBrightness += (r + g + b) / 3;
+    }
+    
+    const pixelCount = data.length / 4;
+    const avgBrightness = totalBrightness / pixelCount;
+    const avgRed = totalRed / pixelCount;
+    const avgGreen = totalGreen / pixelCount;
+    const avgBlue = totalBlue / pixelCount;
+    
+    // Generate stress assessment based on image properties
+    const stressLevel = calculateStressFromImageProps(avgBrightness, avgRed, avgGreen, avgBlue);
+    
+    return {
+      brightness: Math.round(avgBrightness),
+      redLevel: Math.round(avgRed),
+      greenLevel: Math.round(avgGreen),
+      blueLevel: Math.round(avgBlue),
+      stressLevel: stressLevel,
+      fileSize: file.size,
+      dimensions: `${imageData.width}x${imageData.height}`,
+      timestamp: new Date().toLocaleString()
+    };
+  }
+
+  function calculateStressFromImageProps(brightness, red, green, blue) {
+    // Simple heuristic based on color analysis
+    let stressScore = 0;
+    
+    // Darker images might indicate stress
+    if (brightness < 100) stressScore += 2;
+    else if (brightness < 150) stressScore += 1;
+    
+    // Higher red levels might indicate stress
+    if (red > green && red > blue) stressScore += 1;
+    
+    // Very low or very high brightness extremes
+    if (brightness < 50 || brightness > 200) stressScore += 1;
+    
+    // Color balance analysis
+    const colorBalance = Math.abs(red - green) + Math.abs(green - blue) + Math.abs(blue - red);
+    if (colorBalance > 150) stressScore += 1;
+    
+    // Random factor for demonstration
+    stressScore += Math.floor(Math.random() * 2);
+    
+    if (stressScore <= 1) return { level: "Low", color: "#28a745", message: "You appear relaxed! 😌" };
+    if (stressScore <= 3) return { level: "Moderate", color: "#ffc107", message: "Some tension detected 😐" };
+    return { level: "High", color: "#dc3545", message: "High stress indicators 😰" };
+  }
+
+  function displayAnalysisResults(analysis) {
+    status.textContent = "✅ Analysis complete!";
+    status.style.background = "#d4edda";
+    status.style.borderLeftColor = "#28a745";
+    
+    analysisGrid.innerHTML = `
+      <div class="analysis-card">
+        <h4>🎯 Stress Level</h4>
+        <div style="color: ${analysis.stressLevel.color}; font-weight: bold; font-size: 1.2rem;">
+          ${analysis.stressLevel.level}
+        </div>
+        <div>${analysis.stressLevel.message}</div>
+      </div>
+      
+      <div class="analysis-card">
+        <h4>💡 Brightness</h4>
+        <div>${analysis.brightness}/255</div>
+        <div style="font-size: 0.9rem; color: #666;">
+          ${analysis.brightness > 150 ? 'Well lit' : analysis.brightness > 100 ? 'Moderate' : 'Dark'}
+        </div>
+      </div>
+      
+      <div class="analysis-card">
+        <h4>🎨 Color Balance</h4>
+        <div style="font-size: 0.9rem;">
+          R: ${analysis.redLevel}<br>
+          G: ${analysis.greenLevel}<br>
+          B: ${analysis.blueLevel}
+        </div>
+      </div>
+      
+      <div class="analysis-card">
+        <h4>📏 Image Info</h4>
+        <div style="font-size: 0.9rem;">
+          ${analysis.dimensions}<br>
+          ${(analysis.fileSize / 1024 / 1024).toFixed(2)} MB
+        </div>
+      </div>
+    `;
+    
+    analysisResult.style.display = 'block';
+  }
+
+  function displayBasicFileInfo(file) {
+    status.textContent = "ℹ️ Basic file analysis (AI analysis unavailable)";
+    status.style.background = "#d1ecf1";
+    status.style.borderLeftColor = "#17a2b8";
+    
+    analysisGrid.innerHTML = `
+      <div class="analysis-card">
+        <h4>📁 File Information</h4>
+        <div style="font-size: 0.9rem;">
+          Name: ${file.name}<br>
+          Size: ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
+          Type: ${file.type}<br>
+          Modified: ${new Date(file.lastModified).toLocaleDateString()}
+        </div>
+      </div>
+      
+      <div class="analysis-card">
+        <h4>💡 Note</h4>
+        <div style="font-size: 0.9rem;">
+          For advanced AI-powered facial stress analysis, try the main version or check your internet connection.
+        </div>
+      </div>
+    `;
+    
+    analysisResult.style.display = 'block';
+  }
+
+  imageUpload.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) {
+      handleFile(e.target.files[0]);
+    }
+  });
+
+  // Log that fallback version is being used
+  if (window.errorLogger) {
+    window.errorLogger.logInfo('Face Stress Analysis', 'Using fallback version without face-api.js');
+  }
+</script>
+</body>
+</html>

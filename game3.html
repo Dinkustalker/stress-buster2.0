@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tile Tap Sequence</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="falling-emojis.js"></script>
+<style>
+  #tiles {
+    display: grid;
+    grid-template-columns: repeat(2, 100px);
+    grid-gap: 15px;
+    margin-top: 2em;
+  }
+  .tile {
+    width: 100px; height: 100px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+</style>
+</head>
+<body>
+<canvas id="emojiCanvas"></canvas>
+
+<section class="center-section">
+  <h1>🎶 Repeat the Sequence!</h1>
+  <p>Memorize the pattern — then tap it back!</p>
+  <div id="tiles"></div>
+  <div style="margin-top: 20px;">
+    <button onclick="location.href='home.html'" style="background: #ffb3ba; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">🏠 Home</button>
+    <button onclick="location.href='game2.html'" style="background: #baffc9; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; margin-left: 10px;">🔙 Previous Game</button>
+  </div>
+</section>
+
+<script>
+const colors = ["#ffb3ba", "#baffc9", "#bae1ff", "#fff5ba"];
+const emojis = ["🌸","🍩","🎈","✨"];
+const tilesDiv = document.getElementById('tiles');
+let tiles = [], sequence = [], playerSeq = [];
+let round = 0;
+
+function createTiles(){
+  for(let i=0; i<4; i++){
+    const div = document.createElement('div');
+    div.className = 'tile';
+    div.style.background = colors[i];
+    div.dataset.index = i;
+    div.onclick = () => handleTileClick(i);
+    tilesDiv.appendChild(div);
+    tiles.push(div);
+  }
+}
+
+function flashTile(i){
+  return new Promise(res=>{
+    let tile = tiles[i];
+    let oldContent = tile.textContent;
+    tile.textContent = emojis[i];
+    tile.style.opacity = 0.6;
+    setTimeout(()=>{
+      tile.textContent = "";
+      tile.style.opacity = 1;
+      res();
+    }, 500);
+  });
+}
+
+async function playSequence(){
+  for(let i of sequence){
+    await flashTile(i);
+    await new Promise(r=>setTimeout(r, 300));
+  }
+}
+
+function startGame(){
+  sequence = [Math.floor(Math.random()*4), Math.floor(Math.random()*4), Math.floor(Math.random()*4)];
+  playSequence();
+}
+
+function handleTileClick(i){
+  playerSeq.push(i);
+  if(playerSeq[playerSeq.length-1] !== sequence[playerSeq.length-1]){
+    alert("Oops! Try again!");
+    playerSeq = [];
+    playSequence();
+    return;
+  }
+  if(playerSeq.length === sequence.length){
+    // completed
+    let gc = parseInt(localStorage.getItem('gamesCompleted') || '0');
+    localStorage.setItem('gamesCompleted', gc + 1);
+    window.location.href = "game4.html";
+  }
+}
+
+createTiles();
+startGame();
+</script>
+</body>
+</html>

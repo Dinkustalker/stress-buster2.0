@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Funny Excuse & Chill Zone</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      overflow-x: hidden;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      color: white;
+      background: linear-gradient(120deg, #1e1e2f, #3e3e5f);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .container {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 2rem; text-align: center;
+    }
+
+    textarea {
+      width: 100%; max-width: 500px;
+      height: 100px; padding: 1rem;
+      border-radius: 10px; border: none; font-size: 1rem;
+    }
+
+    button {
+      margin: 1rem;
+      padding: 0.8rem 1.5rem;
+      border: none; border-radius: 50px;
+      background: #ff4c60; color: white;
+      font-size: 1rem; cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover { background: #ff7b92; }
+
+    #output { margin-top: 1rem; font-size: 1.2rem; }
+
+    .game-buttons button { background: #27ae60; }
+    .game-buttons button:hover { background: #2ecc71; }
+
+    #gameArea {
+      margin-top: 20px;
+      min-height: 300px;
+      border: 2px dashed rgba(255,255,255,0.4);
+      padding: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Bubble Game */
+    .bubble {
+      position: absolute;
+      font-size: 2rem;
+      cursor: pointer;
+      animation-name: floatUp;
+      animation-duration: 5s;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-120%); opacity: 0; }
+    }
+
+    /* Breathing Exercise */
+    .breath-circle {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      margin: 20px auto;
+      animation: breathe 8s ease-in-out infinite;
+    }
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.5); }
+    }
+
+    /* Memory Game */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 60px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+    .memory-card {
+      width: 60px;
+      height: 60px;
+      background: white;
+      color: #1e1e2f;
+      font-size: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      border-radius: 10px;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- 3D Emoji Background -->
+  <canvas id="bgCanvas"></canvas>
+
+  <section class="container">
+    <h1 class="title">🤣 Funny Excuse Generator & Chill 😌</h1>
+    <p class="subtitle">Describe your situation — get a funny excuse and relax with mini-games!</p>
+
+    <!-- Voice Input -->
+    <button id="voiceBtn">🎤 Speak</button>
+    <textarea id="situation" placeholder="Type or say your situation..."></textarea>
+    
+    <!-- Generate Excuse -->
+    <button id="generateBtn">Generate Excuse</button>
+    <div id="output"></div>
+
+    <hr/>
+
+    <h2>🛋 Stress Relief Zone</h2>
+    <div class="game-buttons">
+      <button onclick="startBubbleGame()">🫧 Bubble Pop</button>
+      <button onclick="startBreathing()">🫁 Breathing Exercise</button>
+      <button onclick="startMemoryGame()">🃏 Memory Match</button>
+    </div>
+
+    <div id="gameArea"></div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.0/build/three.min.js"></script>
+  <script>
+    // 🎤 VOICE TO TEXT
+    const voiceBtn = document.getElementById('voiceBtn');
+    const situationBox = document.getElementById('situation');
+    let recognition;
+    if ('webkitSpeechRecognition' in window) {
+      recognition = new webkitSpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.onresult = e => {
+        situationBox.value += " " + e.results[0][0].transcript;
+      };
+      voiceBtn.onclick = () => recognition.start();
+    } else {
+      voiceBtn.disabled = true;
+      voiceBtn.innerText = "Voice not supported";
+    }
+
+    // 🤣 FUNNY EXCUSE GENERATOR
+    document.getElementById('generateBtn').onclick = () => {
+      const s = situationBox.value.trim();
+      if (!s) return output("Please enter a situation!");
+      const excuses = [
+        "My wifi ran away to join the circus.",
+        "Aliens needed my opinion on intergalactic fashion.",
+        "My fridge staged a protest until I cleaned it."
+      ];
+      output(excuses[Math.floor(Math.random() * excuses.length)]);
+    };
+    function output(msg) { document.getElementById('output').textContent = msg; }
+
+    // 🎮 GAMES
+    const gameArea = document.getElementById('gameArea');
+
+    function startBubbleGame() {
+      gameArea.innerHTML = "<p>Click bubbles to pop! 🫧</p>";
+      let score = 0;
+      let bubblesInGame = [];
+      const bubbleInterval = setInterval(createBubble, 800);
+
+      function createBubble() {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.style.left = Math.random() * (gameArea.clientWidth - 40) + 'px';
+        bubble.textContent = '🫧';
+        bubble.style.top = gameArea.clientHeight + 'px';
+        bubble.onclick = () => { score++; bubble.remove(); };
+        gameArea.appendChild(bubble);
+        bubblesInGame.push(bubble);
+        bubble.addEventListener('animationend', () => bubble.remove());
+      }
+      setTimeout(() => {
+        clearInterval(bubbleInterval);
+        bubblesInGame.forEach(b => b.remove());
+        output(`Bubble pop score: ${score}`);
+      }, 15000);
+    }
+
+    function startBreathing() {
+      gameArea.innerHTML = `<p>Breathe in... breathe out...</p><div class="breath-circle"></div>`;
+    }
+
+    function startMemoryGame() {
+      const emojis = ["🤣","🤣","😎","😎","🤯","🤯","🙃","🙃"];
+      const shuffled = emojis.sort(() => 0.5 - Math.random());
+      let firstCard = null;
+      let lockBoard = false;
+      let matches = 0;
+      gameArea.innerHTML = '<div class="memory-grid"></div>';
+      const grid = gameArea.querySelector('.memory-grid');
+
+      shuffled.forEach(emoji => {
+        const card = document.createElement('div');
+        card.className = 'memory-card';
+        card.textContent = '?';
+        card.addEventListener('click', () => {
+          if (lockBoard || card === firstCard || card.textContent !== '?') return;
+          card.textContent = emoji;
+          if (!firstCard) {
+            firstCard = card;
+            return;
+          }
+          lockBoard = true;
+          setTimeout(() => {
+            if (card.textContent === firstCard.textContent) {
+              matches++;
+              if (matches === emojis.length / 2) output('You cleared the memory game! 🎉');
+            } else {
+              card.textContent = '?';
+              firstCard.textContent = '?';
+            }
+            firstCard = null;
+            lockBoard = false;
+          }, 600);
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    // 🎨 FALLING 3D EMOJIS
+    let scene = new THREE.Scene();
+    let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    let renderer = new THREE.WebGLRenderer({canvas: document.getElementById('bgCanvas'), alpha: true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    let light = new THREE.PointLight(0xffffff, 1, 500);
+    light.position.set(0, 0, 25);
+    scene.add(light);
+
+    const emojis3d = ["🤣", "😂", "😎", "🤯", "🙃"];
+    const particles = [];
+
+    function createEmojiSprite(emoji) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 64; canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      ctx.font = "48px Comic Sans MS";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(emoji, 32, 36);
+      const texture = new THREE.CanvasTexture(canvas);
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
+      sprite.position.set((Math.random() - 0.5) * 20, Math.random() * 10, -5);
+      sprite.scale.set(1.5, 1.5, 1.5);
+      scene.add(sprite);
+      particles.push(sprite);
+    }
+    for (let i = 0; i < 30; i++) createEmojiSprite(emojis3d[Math.floor(Math.random() * emojis3d.length)]);
+    camera.position.z = 10;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      particles.forEach(p => {
+        p.position.y -= 0.02;
+        if (p.position.y < -5) {
+          p.position.y = 10;
+          p.position.x = (Math.random() - 0.5) * 20;
+        }
+      });
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

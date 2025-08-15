@@ -1,0 +1,41 @@
+{
+  "name": "stress-relief-app",
+  "version": "1.0.0",
+  "description": "A fun stress relief web application with games and analysis tools",
+  "main": "home.html",
+  "scripts": {
+    "start": "live-server --port=5500 --host=localhost --open=home.html --watch=. --wait=200",
+    "dev": "live-server --port=3000 --host=localhost --open=home.html --watch=. --wait=200 --verbose",
+    "serve": "python -m http.server 8000",
+    "serve-php": "php -S localhost:8080",
+    "test": "echo \"Opening test page...\" && start test-pages.html",
+    "logs": "echo \"Check browser console or use errorLogger.exportLogs() in browser console\"",
+    "diagnostics": "echo \"Run connectionMonitor.runDiagnostics() in browser console\""
+  },
+  "keywords": [
+    "stress-relief",
+    "games",
+    "web-app",
+    "html",
+    "javascript",
+    "css"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

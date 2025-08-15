@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funny Excuse Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="emojiCanvas"></canvas>
+    
+    <header>
+        <h1 class="doodle-text">😂 Funny Excuse Generator</h1>
+    </header>
+
+    <main>
+        <div class="input-section">
+            <textarea id="situation" placeholder="Describe your situation..."></textarea>
+            <button onclick="generateExcuse()">Generate Funny Excuse</button>
+            <button onclick="startRecording()">🎤 Speak Situation</button>
+        </div>
+        <div id="excuse-output"></div>
+    </main>
+
+    <nav class="games-menu">
+        <h2>Stress Relief Games 🎮</h2>
+        <ul>
+            <li><a href="game1.html">Emoji Quiz</a></li>
+            <li><a href="game2.html">Bubble Pop</a></li>
+            <li><a href="game3.html">Tile Tap Sequence</a></li>
+            <li><a href="game4.html">Spinner Game</a></li>
+            <li><a href="s4.html">Stress Buster Challenge</a></li>
+        </ul>
+        <div style="margin-top: 20px;">
+            <a href="home.html" style="text-decoration: none; background: #ffb3ba; color: white; padding: 10px 20px; border-radius: 8px;">🏠 Back to Home</a>
+        </div>
+    </nav>
+
+    <script src="script.js"></script>
+</body>
+</html>

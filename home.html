@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fun & Stress Relief - Home</title>
+<link rel="stylesheet" href="style.css" />
+<script defer src="error-logger.js"></script>
+<script defer src="connection-monitor.js"></script>
+<script defer src="falling-emojis.js"></script>
+<style>
+body {
+  font-family: 'Baloo 2', cursive;
+  background: linear-gradient(135deg, #fff0f6 0%, #f9e5fd 100%);
+  color: #ff5ca2;
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.center-card {
+  background: rgba(255,255,255,0.80);
+  border-radius: 35px;
+  box-shadow: 0 12px 40px rgba(255,92,162,0.18), 0 2px 16px rgba(80,80,180,0.10), 0 0px 0px #fff;
+  padding: 55px 40px 45px 40px;
+  max-width: 410px;
+  width: 100%;
+  margin: 40px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* subtle glass effect: */
+  backdrop-filter: blur(3px);
+}
+h1 {
+  font-weight: 700;
+  font-size: 2.07rem;
+  color: #ff5ca2;
+  margin-bottom: 8px;
+  text-shadow: 0 1px 8px #fff;
+  letter-spacing: 2px;
+}
+p {
+  font-size: 1.15rem;
+  color: #ff77b7;
+}
+.menu {
+  margin-top: 40px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  align-items: center;
+}
+.menu button {
+  background: linear-gradient(145deg, #ff85c1, #ff5ca2 65%, #ff128f 100%);
+  border: none;
+  color: white;
+  font-weight: 800;
+  padding: 18px 36px;
+  border-radius: 30px;
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow:
+    0 6px 0 #da498d,
+    0 2px 22px 0px #ff84c666,
+    0 6px 28px #ffa7d6a3;
+  transition: all 0.12s cubic-bezier(.2,0,.18,1);
+  /* Optional pop effect on click */
+  outline: none;
+  position: relative;
+}
+.menu button:active {
+  transform: translateY(4px) scale(0.98);
+  box-shadow: 0 2px 0 #b23a73, 0 1px 4px #ff84c688;
+}
+@media (max-width: 540px) {
+  .center-card { padding: 35px 6vw 30px 6vw; }
+  h1 { font-size: 1.25rem; }
+  .menu button { font-size: 1.05rem; padding: 14px 10px;}
+}
+</style>
+</head>
+<body>
+<canvas id="emojiCanvas"></canvas>
+
+<div class="center-card">
+  <h1>🌸 Welcome to Your Fun & Stress-Relief Hub 🌸</h1>
+  <p>Pick what you feel like doing today:</p>
+  <div class="menu">
+    <button onclick="location.href='s4.html'">
+      🎮 Excuse Games & Result
+    </button>
+    <button onclick="location.href='stress-quiz.html'">
+      Quiz To Detect Stress Level
+    </button>
+    <button onclick="location.href='face-stress.html'">
+      face detection for stress
+    </button>
+  </div>
+</div>
+
+</body>
+</html>
+

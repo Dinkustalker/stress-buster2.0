@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Spinner</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="falling-emojis.js"></script>
+<style>
+#spinner { width: 200px; height: 200px; border-radius: 50%; border: 5px solid #ccc; display:flex; align-items:center; justify-content:center; font-size:1.2rem; background:#caffbf; }
+</style>
+</head>
+<body>
+<canvas id="emojiCanvas"></canvas>
+
+<section class="center-section">
+  <h1>🎡 Spin for Your Final Fun Task</h1>
+  <div id="spinner">Click Spin!</div>
+  <button id="spinBtn">Spin</button>
+  <div style="margin-top: 20px;">
+    <button onclick="location.href='home.html'" style="background: #ffb3ba; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">🏠 Home</button>
+    <button onclick="location.href='game3.html'" style="background: #baffc9; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; margin-left: 10px;">🔙 Previous Game</button>
+  </div>
+</section>
+
+<script>
+const tasks = ["Say 'Banana' 5 times 🍌", "Clap 10 times 👏", "Spin around 🚶‍♂️"];
+let spinner = document.getElementById('spinner');
+
+document.getElementById('spinBtn').onclick = () => {
+  let task = tasks[Math.floor(Math.random()*tasks.length)];
+  spinner.textContent = task;
+  setTimeout(()=>{
+    let completed = parseInt(localStorage.getItem('gamesCompleted') || "0");
+    localStorage.setItem('gamesCompleted', completed + 1);
+    window.location.href = "result.html";
+  }, 2000);
+};
+</script>
+</body>
+</html>

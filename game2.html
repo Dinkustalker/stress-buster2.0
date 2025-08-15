@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Bubble Pop</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="falling-emojis.js"></script>
+<style>
+  #gameArea { position: relative; width: 400px; height: 300px; background: #fff9f5; overflow: hidden; border-radius: 8px; }
+  .bubble { position: absolute; border-radius: 50%; width: 40px; height: 40px; background: #b3e0ff; cursor: pointer; }
+</style>
+</head>
+<body>
+<canvas id="emojiCanvas"></canvas>
+
+<section class="center-section">
+  <h1>🎈 Pop 5 Bubbles!</h1>
+  <div id="gameArea"></div>
+  <div style="margin-top: 20px;">
+    <button onclick="location.href='home.html'" style="background: #ffb3ba; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">🏠 Home</button>
+    <button onclick="location.href='game1.html'" style="background: #baffc9; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; margin-left: 10px;">🔙 Previous Game</button>
+  </div>
+</section>
+
+<script>
+const area = document.getElementById('gameArea');
+let popped = 0;
+
+function spawnBubble(){
+  const b = document.createElement('div');
+  b.className = 'bubble';
+  b.style.left = Math.random()*360 + 'px';
+  b.style.top = Math.random()*260 + 'px';
+  b.style.background = `hsl(${Math.random()*360}, 70%, 80%)`;
+  area.appendChild(b);
+  b.onclick = () => {
+    b.remove();
+    popped++;
+    if(popped >= 5){
+      let completed = parseInt(localStorage.getItem('gamesCompleted') || "0");
+      localStorage.setItem('gamesCompleted', completed + 1);
+      window.location.href = "game3.html";
+    }
+  };
+  setTimeout(()=>b.remove(), 2000);
+}
+setInterval(spawnBubble, 700);
+</script>
+</body>
+</html>

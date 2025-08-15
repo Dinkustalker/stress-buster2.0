@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>stress buster</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="falling-emojis.js"></script>
+<style>
+  body.correct {
+    background-color: pink !important;
+    transition: background-color 0.5s ease;
+  }
+  .surprise {
+    margin-top: 20px;
+    text-align: center;
+    animation: funnyRotateIn 1s ease forwards;
+  }
+  .surprise img {
+    width: 200px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    margin-bottom: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #excuseText {
+    font-size: 1.2rem;
+    font-weight: bold;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  /* Funny rotation animation with overshoot & wobble */
+  @keyframes funnyRotateIn {
+    0%   { transform: rotate(-720deg) scale(0); opacity: 0; }
+    60%  { transform: rotate(30deg) scale(1.1); opacity: 1; }
+    80%  { transform: rotate(-15deg) scale(0.95); }
+    100% { transform: rotate(0deg) scale(1); }
+  }
+</style>
+</head>
+<body>
+<canvas id="emojiCanvas"></canvas>
+
+<section class="center-section">
+    <h1>How do you feel baddie?</h1>
+    <div class="surprise" id="surpriseBox">
+        <img id="cuteImg" src="1.jpeg" alt="Cute Surprise">
+        <p id="excuseText"></p>
+    </div>
+    <div style="margin-top: 30px;">
+        <button onclick="location.href='home.html'" style="background: #ffb3ba; color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem;">🏠 Back to Home</button>
+        <button onclick="location.href='s4.html'" style="background: #baffc9; color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; margin-left: 10px; font-size: 1.1rem;">🎮 Play Again</button>
+    </div>
+</section>
+
+<script>
+const funnyExcuses = [
+    "Are you still stressed pookie🎀?",
+    "Is your brain still doing  the grumpy dance?",
+    "are you still stressed or do you need a smile break?"
+];
+
+// 5 local images in same folder
+const cuteImages = [
+    "1.jpeg", 
+    "2.jpeg"
+];
+
+const situation = localStorage.getItem("userSituation") || "this situation";
+const completed = parseInt(localStorage.getItem("gamesCompleted"));
+
+if (completed < 4) {
+    document.getElementById("excuseText").textContent = "🤔 Hey! Finish all 4 games first!";
+} else {
+    // Pick random image and excuse
+    const img = cuteImages[Math.floor(Math.random()*cuteImages.length)];
+    const excuse = ` ${funnyExcuses[Math.floor(Math.random()*funnyExcuses.length)]}`;
+    
+    document.body.classList.add("correct");
+    document.getElementById("cuteImg").src = img;
+    document.getElementById("excuseText").textContent = excuse;
+}
+</script>
+</body>
+</html>

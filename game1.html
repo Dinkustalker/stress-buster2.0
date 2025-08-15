@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Emoji Quiz</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="falling-emojis.js"></script>
+</head>
+<body>
+<canvas id="emojiCanvas"></canvas>
+
+<section class="center-section">
+  <h1>🧩 Guess the Phrase</h1>
+  <p id="emojiClue" style="font-size:2rem;"></p>
+  <input id="answer" placeholder="Your guess...">
+  <div style="margin-top: 20px;">
+    <button onclick="location.href='home.html'" style="background: #ffb3ba; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">🏠 Home</button>
+    <button onclick="location.href='s4.html'" style="background: #baffc9; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; margin-left: 10px;">🔙 Back to Challenge</button>
+  </div>
+</section>
+
+<script>
+const quizzes = [
+  { clue: "🐱🍼", answer: "cat milk" },
+  { clue: "🌧️☂️", answer: "rain umbrella" },
+  { clue: "🍕❤️", answer: "pizza love" }
+];
+const quiz = quizzes[Math.floor(Math.random()*quizzes.length)];
+document.getElementById('emojiClue').textContent = quiz.clue;
+
+document.getElementById('answer').addEventListener('input', (e) => {
+  if(e.target.value.toLowerCase().trim() === quiz.answer){
+    let completed = parseInt(localStorage.getItem('gamesCompleted') || "0");
+    localStorage.setItem('gamesCompleted', completed + 1);
+    window.location.href = "game2.html";
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Photo Facial Stress Scan (Robust)</title>
+<link rel="stylesheet" href="style.css" />
+<script defer src="error-logger.js"></script>
+<script defer src="connection-monitor.js"></script>
+<script defer src="falling-emojis.js"></script>
+
+<style>
+  body {
+    font-family: 'Baloo 2', cursive;
+    text-align: center;
+    padding: 20px;
+    background: transparent;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 100%;
+  }
+  
+  h1 {
+    color: #ff5ca2;
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+  }
+  
+  .upload-area {
+    border: 3px dashed #ff5ca2;
+    border-radius: 15px;
+    padding: 40px;
+    margin: 20px 0;
+    background: #fff0f6;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .upload-area:hover {
+    background: #ffe0f0;
+    border-color: #ff128f;
+  }
+  
+  #imageUpload {
+    display: none;
+  }
+  
+  #preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 10px;
+    margin: 20px 0;
+    display: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  #status {
+    font-size: 1.2rem;
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border-left: 4px solid #ff5ca2;
+  }
+  
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 10px 0;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff5ca2, #ff8cc8);
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+  
+  .btn {
+    background: #ff5ca2;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 5px;
+    transition: background 0.3s;
+  }
+  
+  .btn:hover {
+    background: #ff128f;
+  }
+  
+  .btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+</style>
+</head>
+
+<body>
+<canvas id="emojiCanvas"></canvas>
+
+<div class="container">
+  <h1>📸 AI-Powered Facial Stress Analysis</h1>
+  <p>Upload a clear photo of your face for advanced stress level analysis</p>
+  
+  <div class="upload-area" onclick="document.getElementById('imageUpload').click()">
+    <div style="font-size: 3rem; margin-bottom: 10px;">📷</div>
+    <div>Click here to upload your photo</div>
+    <div style="font-size: 0.9rem; color: #666; margin-top: 10px;">
+      Supports: JPG, PNG, GIF (Max 10MB)
+    </div>
+  </div>
+  
+  <input type="file" id="imageUpload" accept="image/*" />
+  <img id="preview" alt="Preview" />
+  
+  <div id="status">🔄 Loading AI models...</div>
+  <div class="progress-bar" id="progressBar" style="display: none;">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+  
+  <div style="margin-top: 30px;">
+    <button class="btn" onclick="location.href='home.html'">🏠 Back to Home</button>
+    <button class="btn" onclick="location.href='face-stress-fallback.html'">🔄 Use Fallback Version</button>
+    <button class="btn" onclick="location.href='diagnostics.html'">🔧 Diagnostics</button>
+  </div>
+</div>
+
+<script>
+  const imageUpload = document.getElementById('imageUpload');
+  const preview = document.getElementById('preview');
+  const status = document.getElementById('status');
+  const progressBar = document.getElementById('progressBar');
+  const progressFill = document.getElementById('progressFill');
+
+  let faceApiLoaded = false;
+  let modelsLoaded = false;
+
+  // Multiple CDN sources for face-api.js
+  const faceApiSources = [
+    'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js',
+    'https://unpkg.com/@vladmandic/face-api/dist/face-api.js',
+    'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js'
+  ];
+
+  // Multiple model source URLs
+  const modelSources = [
+    'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',
+    'https://raw.githubusercontent.com/vladmandic/face-api/master/model/',
+    'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights/'
+  ];
+
+  async function loadFaceApiLibrary() {
+    for (let i = 0; i < faceApiSources.length; i++) {
+      try {
+        status.textContent = `🔄 Loading face-api library (attempt ${i + 1}/${faceApiSources.length})...`;
+        
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = faceApiSources[i];
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+
+        // Wait a bit for the library to initialize
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        if (typeof faceapi !== 'undefined') {
+          faceApiLoaded = true;
+          status.textContent = `✅ Face-api library loaded from source ${i + 1}`;
+          if (window.errorLogger) {
+            window.errorLogger.logInfo('Face API', `Loaded from: ${faceApiSources[i]}`);
+          }
+          return true;
+        }
+      } catch (error) {
+        console.warn(`Failed to load from ${faceApiSources[i]}:`, error);
+        if (window.errorLogger) {
+          window.errorLogger.logWarning('Face API', `Failed to load from ${faceApiSources[i]}: ${error.message}`);
+        }
+      }
+    }
+    
+    throw new Error('Failed to load face-api.js from any source');
+  }
+
+  async function loadModels() {
+    if (!faceApiLoaded) {
+      throw new Error('Face-api library not loaded');
+    }
+
+    progressBar.style.display = 'block';
+    let progress = 0;
+
+    for (let sourceIndex = 0; sourceIndex < modelSources.length; sourceIndex++) {
+      try {
+        const MODEL_URL = modelSources[sourceIndex];
+        status.textContent = `🔄 Loading models from source ${sourceIndex + 1}...`;
+        
+        // Load models sequentially with progress updates
+        progress = 10;
+        progressFill.style.width = progress + '%';
+        status.textContent = "🔄 Loading face detector...";
+        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        
+        progress = 40;
+        progressFill.style.width = progress + '%';
+        status.textContent = "🔄 Loading landmark detector...";
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        
+        progress = 70;
+        progressFill.style.width = progress + '%';
+        status.textContent = "🔄 Loading expression detector...";
+        await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+        
+        progress = 100;
+        progressFill.style.width = progress + '%';
+        status.textContent = "✅ All models loaded successfully! Please upload a photo.";
+        
+        modelsLoaded = true;
+        
+        if (window.errorLogger) {
+          window.errorLogger.logInfo('Face API Models', `Loaded from: ${MODEL_URL}`);
+        }
+        
+        setTimeout(() => {
+          progressBar.style.display = 'none';
+        }, 2000);
+        
+        return true;
+        
+      } catch (error) {
+        console.warn(`Failed to load models from ${modelSources[sourceIndex]}:`, error);
+        if (window.errorLogger) {
+          window.errorLogger.logWarning('Face API Models', `Failed from ${modelSources[sourceIndex]}: ${error.message}`);
+        }
+      }
+    }
+    
+    throw new Error('Failed to load models from any source');
+  }
+
+  async function analyzeImage(img) {
+    if (!faceApiLoaded || !modelsLoaded) {
+      status.textContent = "❌ AI models not ready. Please wait for loading to complete.";
+      return;
+    }
+
+    try {
+      status.textContent = "🔍 Analyzing facial expressions...";
+      
+      const detectionOptions = new faceapi.TinyFaceDetectorOptions({
+        inputSize: 416,
+        scoreThreshold: 0.5
+      });
+      
+      const detection = await faceapi.detectSingleFace(img, detectionOptions)
+                                     .withFaceLandmarks()
+                                     .withFaceExpressions();
+      
+      if (!detection) {
+        status.textContent = "❌ No face detected. Please use a clearer photo with good lighting and ensure your face is clearly visible.";
+        return;
+      }
+      
+      console.log('Face detection successful:', detection);
+      const stressMsg = getStressLevel(detection.expressions);
+      status.textContent = stressMsg;
+      
+      if (window.errorLogger) {
+        window.errorLogger.logInfo('Face Analysis', 'Successfully analyzed face expressions');
+      }
+      
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+      status.textContent = `❌ Error analyzing photo: ${error.message}`;
+      
+      if (window.errorLogger) {
+        window.errorLogger.logError('Face Analysis', error.message);
+      }
+    }
+  }
+
+  function getStressLevel(expressions) {
+    const stressScore =
+      expressions.angry * 3 +
+      expressions.fearful * 2.5 +
+      expressions.disgusted * 2 +
+      expressions.sad * 1.5 +
+      expressions.surprised * 0.5 +
+      expressions.neutral * 0 +
+      expressions.happy * -1;
+
+    if (stressScore > 0.6) {
+      return "😰 High stress detected! Consider taking a break and practicing relaxation techniques.";
+    } else if (stressScore > 0.3) {
+      return "😐 Moderate stress levels. Some relaxation might help.";
+    } else if (stressScore > 0.1) {
+      return "🙂 Low stress levels. You seem relatively calm.";
+    } else {
+      return "😌 Very relaxed! You appear to be in a great mood.";
+    }
+  }
+
+  imageUpload.addEventListener('change', async (e) => {
+    if (!e.target.files || !e.target.files[0]) return;
+    
+    const file = e.target.files[0];
+    
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      status.textContent = "❌ Please select a valid image file";
+      return;
+    }
+    
+    if (file.size > 10 * 1024 * 1024) {
+      status.textContent = "❌ Image too large. Please use an image smaller than 10MB";
+      return;
+    }
+    
+    const imgUrl = URL.createObjectURL(file);
+    preview.src = imgUrl;
+    preview.style.display = "block";
+    
+    preview.onload = async () => {
+      if (modelsLoaded) {
+        await analyzeImage(preview);
+      } else {
+        status.textContent = "⏳ Please wait for models to finish loading...";
+      }
+      URL.revokeObjectURL(imgUrl);
+    };
+    
+    preview.onerror = () => {
+      status.textContent = "❌ Error loading image. Please try a different file.";
+      URL.revokeObjectURL(imgUrl);
+    };
+  });
+
+  // Initialize everything
+  async function initialize() {
+    try {
+      await loadFaceApiLibrary();
+      await loadModels();
+    } catch (error) {
+      console.error('Initialization failed:', error);
+      status.textContent = `❌ Failed to load AI models: ${error.message}`;
+      
+      if (window.errorLogger) {
+        window.errorLogger.logError('Face API Initialization', error.message);
+      }
+      
+      // Show fallback option
+      setTimeout(() => {
+        status.innerHTML = `
+          ❌ AI face analysis unavailable<br>
+          <small>Try the fallback version or check your internet connection</small><br>
+          <button onclick="location.href='face-stress-fallback.html'" class="btn" style="margin-top: 10px;">Use Fallback Version</button>
+          <button onclick="location.reload()" class="btn" style="margin-top: 10px;">Retry</button>
+        `;
+      }, 2000);
+    }
+  }
+
+  // Start initialization when page loads
+  window.addEventListener('load', () => {
+    setTimeout(initialize, 500);
+  });
+</script>
+</body>
+</html>

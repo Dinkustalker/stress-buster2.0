@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test All Pages</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff0f6 0%, #f9e5fd 100%);
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .test-link {
+            display: inline-block;
+            background: #ff5ca2;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        .test-link:hover {
+            background: #ff128f;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Page Testing Dashboard</h1>
+    <p>Click on each link to test if the pages load correctly:</p>
+
+    <div class="test-section">
+        <h2>🏠 Main Pages</h2>
+        <a href="home.html" class="test-link" target="_blank">Home Page</a>
+        <a href="s4.html" class="test-link" target="_blank">Stress Buster Challenge</a>
+        <a href="result.html" class="test-link" target="_blank">Result Page</a>
+    </div>
+
+    <div class="test-section">
+        <h2>🎮 Game Pages</h2>
+        <a href="game1.html" class="test-link" target="_blank">Game 1 - Emoji Quiz</a>
+        <a href="game2.html" class="test-link" target="_blank">Game 2 - Bubble Pop</a>
+        <a href="game3.html" class="test-link" target="_blank">Game 3 - Tile Sequence</a>
+        <a href="game4.html" class="test-link" target="_blank">Game 4 - Spinner</a>
+    </div>
+
+    <div class="test-section">
+        <h2>🧠 Analysis Pages</h2>
+        <a href="stress-quiz.html" class="test-link" target="_blank">Stress Quiz</a>
+        <a href="face-stress-robust.html" class="test-link" target="_blank">Face Stress (Robust AI)</a>
+        <a href="face-stress.html" class="test-link" target="_blank">Face Stress (Standard AI)</a>
+        <a href="face-stress-fallback.html" class="test-link" target="_blank">Face Stress (Fallback)</a>
+        <a href="voice-analysis.html" class="test-link" target="_blank">Voice Analysis</a>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 Other Pages</h2>
+        <a href="ex1.html" class="test-link" target="_blank">Example 1</a>
+        <a href="ex2.html" class="test-link" target="_blank">Example 2</a>
+        <a href="ex3.html" class="test-link" target="_blank">Example 3</a>
+    </div>
+
+    <div class="test-section">
+        <h2>📁 Resources</h2>
+        <p><strong>CSS:</strong> <a href="style.css" target="_blank">style.css</a></p>
+        <p><strong>JavaScript:</strong> <a href="script.js" target="_blank">script.js</a> | <a href="falling-emojis.js" target="_blank">falling-emojis.js</a></p>
+        <p><strong>Images:</strong> <a href="1.jpeg" target="_blank">1.jpeg</a> | <a href="2.jpeg" target="_blank">2.jpeg</a></p>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 Server & Diagnostics</h2>
+        <a href="diagnostics.html" class="test-link" target="_blank">🔧 Server Diagnostics</a>
+        <a href="error-logger.js" class="test-link" target="_blank">📋 Error Logger</a>
+        <a href="connection-monitor.js" class="test-link" target="_blank">📡 Connection Monitor</a>
+        <a href="server-config.js" class="test-link" target="_blank">⚙️ Server Config</a>
+
+        <div style="margin-top: 15px;">
+            <p><strong>Server Startup Scripts:</strong></p>
+            <p>Windows: <code>start-server.bat</code> or <code>powershell -ExecutionPolicy Bypass -File start-server.ps1</code></p>
+            <p>Alternative: <code>node server-config.js</code></p>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 Common Issues Fixed</h2>
+        <div class="status success">
+            ✅ Added navigation buttons to all game pages<br>
+            ✅ Fixed broken links in ex3.html<br>
+            ✅ Added error handling to JavaScript files<br>
+            ✅ Updated face-api.js CDN for better compatibility<br>
+            ✅ Added fallback handling for missing canvas elements<br>
+            ✅ Improved localStorage error handling<br>
+            ✅ Created comprehensive error logging system<br>
+            ✅ Added connection monitoring and diagnostics<br>
+            ✅ Provided multiple server startup options
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🚀 Quick Test</h2>
+        <button onclick="testLocalStorage()" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Test LocalStorage</button>
+        <button onclick="testImages()" style="background: #17a2b8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Test Images</button>
+        <div id="testResults" style="margin-top: 10px;"></div>
+    </div>
+
+    <script>
+        function testLocalStorage() {
+            const results = document.getElementById('testResults');
+            try {
+                localStorage.setItem('test', 'working');
+                const value = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                
+                if (value === 'working') {
+                    results.innerHTML = '<div class="status success">✅ LocalStorage is working correctly!</div>';
+                } else {
+                    results.innerHTML = '<div class="status error">❌ LocalStorage test failed!</div>';
+                }
+            } catch (error) {
+                results.innerHTML = '<div class="status error">❌ LocalStorage error: ' + error.message + '</div>';
+            }
+        }
+
+        function testImages() {
+            const results = document.getElementById('testResults');
+            const images = ['1.jpeg', '2.jpeg'];
+            let loadedCount = 0;
+            let errorCount = 0;
+
+            results.innerHTML = '<div class="status">🔄 Testing images...</div>';
+
+            images.forEach(src => {
+                const img = new Image();
+                img.onload = () => {
+                    loadedCount++;
+                    if (loadedCount + errorCount === images.length) {
+                        showImageResults();
+                    }
+                };
+                img.onerror = () => {
+                    errorCount++;
+                    if (loadedCount + errorCount === images.length) {
+                        showImageResults();
+                    }
+                };
+                img.src = src;
+            });
+
+            function showImageResults() {
+                if (errorCount === 0) {
+                    results.innerHTML = '<div class="status success">✅ All images loaded successfully!</div>';
+                } else {
+                    results.innerHTML = '<div class="status error">❌ ' + errorCount + ' image(s) failed to load!</div>';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Funny Excuse & Chill Zone</title>
+  <style>
+    body {
+      margin: 0; font-family: 'Comic Sans MS', cursive;
+      background: linear-gradient(120deg, #1e1e2f, #3e3e5f);
+      color: white; text-align: center; overflow-x: hidden;
+    }
+    html { scroll-behavior: smooth; }
+    .container {
+      min-height: 100vh; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; padding: 2rem;
+    }
+    textarea {
+      width: 100%; max-width: 500px; padding: 1rem; height: 100px;
+      border-radius: 10px; border: none;
+    }
+    button {
+      margin: 1rem; padding: 0.8rem 1.5rem; border: none; 
+      border-radius: 50px; background: #ff4c60; color: white;
+      font-size: 1rem; cursor: pointer; transition: 0.3s;
+    }
+    button:hover { background: #ff7b92; }
+    .game-buttons a button { background: #27ae60; }
+    .game-buttons a button:hover { background: #2ecc71; }
+    #output { margin-top: 1rem; font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+  <section class="container">
+    <h1>🤣 Funny Excuse Generator & Chill 😌</h1>
+    <p>Describe your situation — get a funny excuse and then relax with mini-games!</p>
+
+    <button id="voiceBtn">🎤 Speak</button>
+    <textarea id="situation" placeholder="Type or say your situation..."></textarea>
+    <button id="generateBtn">Generate Excuse</button>
+    <div id="output"></div>
+
+    <hr/>
+    <h2 bold>Stress Relief Zone</h2>
+    <div class="game-buttons">
+      <a href="bubble.html"><button>🫧 Bubble Pop</button></a>
+      <a href="breathing.html"><button>🫁 Breathing Exercise</button></a>
+      <a href="memory.html"><button>🃏 Memory Match</button></a>
+    </div>
+  </section>
+
+  <script>
+    const voiceBtn=document.getElementById('voiceBtn');
+    const situationBox=document.getElementById('situation');
+    let recognition;
+    if('webkitSpeechRecognition'in window){
+      recognition=new webkitSpeechRecognition();
+      recognition.lang="en-US";
+      recognition.onresult=e=>{
+        situationBox.value+=" "+e.results[0][0].transcript;
+      };
+      voiceBtn.onclick=()=>recognition.start();
+    } else {
+      voiceBtn.disabled=true; voiceBtn.innerText="Voice not supported";
+    }
+    document.getElementById('generateBtn').onclick=()=>{
+      const s=situationBox.value.trim();
+      if(!s) return output("Please enter a situation!");
+      const excuses=[
+        "My wifi ran away to join the circus.",
+        "Aliens needed my opinion on intergalactic fashion.",
+        "My fridge staged a protest until I cleaned it."
+      ];
+      output(excuses[Math.floor(Math.random()*excuses.length)]);
+    };
+    function output(msg){document.getElementById('output').textContent=msg;}
+  </script>
+
+  <div style="margin-top: 30px;">
+      <button onclick="location.href='home.html'" style="background: #ffb3ba; color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem;">🏠 Back to Home</button>
+  </div>
+</body>
+</html>
