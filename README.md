@@ -58,14 +58,26 @@ php -S localhost:8080
 Project Documentation
 Screenshots
 
-![Screenshot1](Add screenshot 1 link here) – Home page with quick access to games and tools
-![Screenshot2](Add screenshot 2 link here) – Bubble Pop game in progress
-![Screenshot3](Add screenshot 3 link here) – Face stress detection result screen
+![Screenshot1](https://github.com/Dinkustalker/stress-buster2.0/blob/main/Screenshot%20(4).png) – Home page with quick access to games and tools
+![Screenshot2](https://github.com/Dinkustalker/stress-buster2.0/blob/main/Screenshot%20(5).png) – game page
+![Screenshot3](https://github.com/Dinkustalker/stress-buster2.0/blob/main/Screenshot%20(6).png) – quiz to know your stress level
+![Screenshot4](https://github.com/Dinkustalker/stress-buster2.0/blob/main/Screenshot%20(7).png)-face detection  
+
 
 
 Project Demo
 
 Video: [https://github.com/Dinkustalker/stress-buster2.0/commit/311d748bfd0d77e682244eccbc7f02f21e6adb31] – Shows launching the app, playing a game, running stress detection, and viewing results
+
+Instructions to run the project:
+
+Step 1: run the home.html file to land on the home page.
+The home page has different tabs that lead to different pages
+Step 2: upon clicking the "are you stressed pookie?" Tab you'll be taken to s4.html which is then linked to the games files game1.html game2.html game3.html and game4.html.
+Step 4: after finishing the games you'll be redirected to result.html
+Step 5: upon clicking "quiz to detect stress level" tab you'll be redirected to stress-quiz.html file
+Step 6: upon clicking the mast tab you'll be redirected to face-stress.html
+Step 7: falling-emojis.html is used for animating the emojis falling in the background
 
 Team Contributions
 Sanjana Vijay: Frontend UI/UX design, workflow diagrams, project structure setup
